@@ -2,6 +2,8 @@ open Core
 
 let int_of_string str = try Some (Int.of_string str) with _ -> None
 
+exception NoNegative of int
+
 module Delim = struct
   let re =
     Re2.create_exn
@@ -15,6 +17,7 @@ module Delim = struct
     numbers |> String.split ~on:'\n'
     |> List.concat_map ~f:(String.split_on_chars ~on:(String.to_list delim))
     |> List.filter_map ~f:int_of_string
+    |> List.map ~f:(fun n -> if n < 0 then raise (NoNegative n) else n)
 end
 
 let sum str = str |> Delim.split |> List.fold ~init:0 ~f:( + )
@@ -42,3 +45,9 @@ let%expect_test "1\n2,3" =
 let%expect_test "//;\n1;2" =
   printf "%d" (sum "//;\n1;2");
   [%expect {| 3 |}]
+
+let%expect_test "//;\n1;-2" =
+  (try sum "//;\n1;-2" |> ignore with
+  | NoNegative _ -> printf "raised"
+  | _ -> ());
+  [%expect {| raised |}]
