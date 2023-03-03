@@ -1,0 +1,4 @@
+(executable
+ (public_name string_calculator)
+ (name main)
+ (libraries string_calculator))

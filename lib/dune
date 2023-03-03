@@ -1,0 +1,5 @@
+(library
+ (name string_calculator)
+ (libraries core)
+ (inline_tests)
+ (preprocess (pps ppx_jane ppx_expect)))
