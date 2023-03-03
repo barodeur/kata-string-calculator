@@ -20,10 +20,12 @@
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends
-   ocaml
+   core
    dune
+   ocaml
    ppx_jane
-   core)
+   re2
+   )
  (tags
   (topics "to describe" your project)))
 
