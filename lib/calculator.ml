@@ -2,7 +2,7 @@ open Core
 
 let int_of_string str = try Some (Int.of_string str) with _ -> None
 
-exception NoNegative of int
+exception NoNegative of int list
 
 module Delim = struct
   let re =
@@ -14,10 +14,14 @@ module Delim = struct
     let m = Re2.first_match_exn re str in
     let delim = Re2.Match.get ~sub:(`Index 2) m |> Option.value ~default:"," in
     let numbers = Re2.Match.get_exn ~sub:(`Index 3) m in
-    numbers |> String.split ~on:'\n'
-    |> List.concat_map ~f:(String.split_on_chars ~on:(String.to_list delim))
-    |> List.filter_map ~f:int_of_string
-    |> List.map ~f:(fun n -> if n < 0 then raise (NoNegative n) else n)
+    let positive, negative =
+      numbers |> String.split ~on:'\n'
+      |> List.concat_map ~f:(String.split_on_chars ~on:(String.to_list delim))
+      |> List.filter_map ~f:int_of_string
+      |> List.partition_tf ~f:(fun n -> n > 0)
+    in
+    if List.length negative > 0 then raise (NoNegative negative);
+    positive
 end
 
 let sum str = str |> Delim.split |> List.fold ~init:0 ~f:( + )
@@ -51,3 +55,10 @@ let%expect_test "//;\n1;-2" =
   | NoNegative _ -> printf "raised"
   | _ -> ());
   [%expect {| raised |}]
+
+let%expect_test "//;\n1;-2;-3" =
+  (try sum "//;\n1;-2;-3" |> ignore with
+  | NoNegative l ->
+      printf "raised %s" (l |> List.map ~f:Int.to_string |> String.concat)
+  | _ -> ());
+  [%expect {| raised -2-3 |}]
