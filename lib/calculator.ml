@@ -18,6 +18,7 @@ module Utils = struct
       numbers |> String.split ~on:'\n'
       |> List.concat_map ~f:(String.split_on_chars ~on:(String.to_list delim))
       |> List.filter_map ~f:int_opt_of_string
+      |> List.filter ~f:(( >= ) 1000)
       |> List.partition_tf ~f:(fun n -> n > 0)
     in
     if List.length negative > 0 then raise (NoNegative negative);
@@ -59,6 +60,14 @@ module Utils = struct
         printf "raised %s" (l |> List.map ~f:Int.to_string |> String.concat)
     | _ -> ());
     [%expect {| raised -2-3 |}]
+
+  let%expect_test "1000,2" =
+    printf "%d" (sum "1000,2");
+    [%expect {| 1002 |}]
+
+  let%expect_test "1001,2" =
+    printf "%d" (sum "1001,2");
+    [%expect {| 2 |}]
 end
 
 class calculator =
