@@ -17,10 +17,7 @@
         };
         devShells = {
           default = pkgs.mkShell {
-            buildInputs = [
-              pkgs.gmp
-              pkgs.postgresql_14
-            ] ++ lib.optionals pkgs.stdenv.isDarwin [
+            buildInputs = lib.optionals pkgs.stdenv.isDarwin [
               frameworks.CoreServices
               frameworks.Foundation
             ];
