@@ -63,19 +63,19 @@ end
 
 class calculator =
   object
-    val mutable add_count = 0
-    method get_add_count = add_count
+    val mutable sum_count = 0
+    method get_sum_count = sum_count
 
     method sum str =
-      add_count <- add_count + 1;
+      sum_count <- sum_count + 1;
       Utils.sum str
   end
 
 let%expect_test "" =
   let calc = new calculator in
-  printf "%d" calc#get_add_count;
+  printf "%d" calc#get_sum_count;
   [%expect {| 0 |}];
   printf "%d" (calc#sum "1,2");
   [%expect {| 3 |}];
-  printf "%d" calc#get_add_count;
+  printf "%d" calc#get_sum_count;
   [%expect {| 1 |}]
