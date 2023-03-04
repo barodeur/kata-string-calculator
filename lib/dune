@@ -1,5 +1,7 @@
 (library
  (name string_calculator)
  (libraries core re2)
+ (modules calculator)
  (inline_tests)
- (preprocess (pps ppx_jane ppx_expect)))
+ (preprocess
+  (pps ppx_jane ppx_expect)))
