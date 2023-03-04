@@ -6,7 +6,7 @@ module Utils = struct
   let re =
     Re2.create_exn
       ~options:{ Re2.Options.default with dot_nl = true }
-      {|(//(;)\n)?(.*)$|}
+      {|(//\[([^]]+)\]\n)?(.*)$|}
 
   let int_opt_of_string str = try Some (Int.of_string str) with _ -> None
 
@@ -44,18 +44,16 @@ module Utils = struct
     printf "%d" (sum "1\n2,3");
     [%expect {| 6 |}]
 
-  let%expect_test "//;\n1;2" =
-    printf "%d" (sum "//;\n1;2");
+  let%expect_test "//[;]\n1;2" =
+    printf "%d" (sum "//[;]\n1;2");
     [%expect {| 3 |}]
 
-  let%expect_test "//;\n1;-2" =
-    (try sum "//;\n1;-2" |> ignore with
-    | NoNegative _ -> printf "raised"
-    | _ -> ());
+  let%expect_test "1,-2" =
+    (try sum "1,-2" |> ignore with NoNegative _ -> printf "raised" | _ -> ());
     [%expect {| raised |}]
 
-  let%expect_test "//;\n1;-2;-3" =
-    (try sum "//;\n1;-2;-3" |> ignore with
+  let%expect_test "1;-2;-3" =
+    (try sum "1,-2,-3" |> ignore with
     | NoNegative l ->
         printf "raised %s" (l |> List.map ~f:Int.to_string |> String.concat)
     | _ -> ());
@@ -68,6 +66,10 @@ module Utils = struct
   let%expect_test "1001,2" =
     printf "%d" (sum "1001,2");
     [%expect {| 2 |}]
+
+  let%expect_test "//[***]\n1***2***3" =
+    printf "%d" (sum "//[***]\n1***2***3");
+    [%expect {| 6 |}]
 end
 
 class calculator =
